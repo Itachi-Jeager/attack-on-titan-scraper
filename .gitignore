@@ -1,1 +1,3 @@
 **/.venv
+/aot_scraper/aot_scraper/__pycache__/
+/aot_scraper/aot_scraper/spiders/__pycache__
