@@ -30,7 +30,15 @@ class AotLocationsSpider(scrapy.Spider):
         :params response
         :return generator
         """
-
+        # Instantiating an item loader with an item and a response.
+        info_block = response.css("div#mw-content-text")
+        news_item_loader = ItemLoader(item=HealthnewsscraperItem(), response=info_block)
+        
+        # Populating the link, headline, body and date fields.
+        news_item_loader.add_value('link', response.meta['item'])
+        news_item_loader.add_css('name', 'aside.portable-infobox.pi-background.pi-border-color.pi-theme-wikia.pi-layout-default div.pi-data-value.pi-font::text')
+        news_item_loader.add_css('description', 'p::text')
+        news_item_loader.add_css('date_published', 'span.meta-date::text')
 
 
         pass
