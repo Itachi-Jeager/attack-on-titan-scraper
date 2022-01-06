@@ -9,6 +9,11 @@ class AotLocationsSpider(scrapy.Spider):
     name = "aot_locations"
     allowed_domains = ["attackontitan.fandom.com"]
     start_urls = ["https://attackontitan.fandom.com/wiki/Category:Locations_(Anime)"]
+    custom_settings = {
+        "FEEDS": {
+            "./attack-on-titan-scraper/scrapes/location_data.jl": {"format": "jsonlines"}
+        },
+    }
 
     def parse(self, response):
         """
