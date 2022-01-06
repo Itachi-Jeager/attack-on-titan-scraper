@@ -1,4 +1,6 @@
 import scrapy
+from ..items import AotLocationItem
+from scrapy.loader import ItemLoader
 
 
 class AotLocationsSpider(scrapy.Spider):
@@ -60,12 +62,12 @@ class AotLocationsSpider(scrapy.Spider):
             notable_former_inhabitants = []
 
         # Instantiate Itemloader
-        news_item_loader = ItemLoader(item=HealthnewsscraperItem(), response=info_block)
+        location_item_loader = ItemLoader(item=AotLocationItem(), response=info_block)
 
         # Populating source, name, rel_location, residents fields.
-        news_item_loader.add_value("source", response.meta["item"])
-        news_item_loader.add_css("name", "div.pi-data-value.pi-font::text")
-        news_item_loader.add_value("rel_location", territory)
-        news_item_loader.add_value(
+        location_item_loader.add_value("source", response.meta["item"])
+        location_item_loader.add_css("name", "div.pi-data-value.pi-font::text")
+        location_item_loader.add_value("rel_location", territory)
+        location_item_loader.add_value(
             "residents", notable_inhabitants + notable_former_inhabitants
         )
