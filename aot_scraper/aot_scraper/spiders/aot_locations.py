@@ -2,9 +2,11 @@ import scrapy
 
 
 class AotLocationsSpider(scrapy.Spider):
-    name = 'aot_locations'
-    allowed_domains = ['attackontitan.fandom.com']
-    start_urls = ['https://attackontitan.fandom.com/wiki/Category:Locations_(Anime)']
+
+    # spider name
+    name = "aot_locations"
+    allowed_domains = ["attackontitan.fandom.com"]
+    start_urls = ["https://attackontitan.fandom.com/wiki/Category:Locations_(Anime)"]
 
     def parse(self, response):
         """
@@ -15,13 +17,11 @@ class AotLocationsSpider(scrapy.Spider):
         for entry in response.css("div.category-page__members-wrapper"):
             location_link = entry.css("a.category-page__member-link").attrib["href"]
 
-
             request = scrapy.follow(location_link, callback=self.article_reader)
 
-            request.meta['item'] = location_link
+            request.meta["item"] = location_link
 
             yield request
-
 
     @staticmethod
     def article_reader(response):
@@ -30,16 +30,42 @@ class AotLocationsSpider(scrapy.Spider):
         :params response
         :return generator
         """
-        # Instantiating an item loader with an item and a response.
-        info_block = response.css("div#mw-content-text")
+        # Section of the page containing data
+        info_block = response.css(
+            "div#mw-content-text "
+            "aside.portable-infobox.pi-background.pi-border-color.pi-theme-wikia.pi-layout-default"
+        )
+
+        # territory data
+        territory_div = info_block.xpath(".//div[@data-source='Territory']")
+        territory = territory_div.css("div.pi-data-value.pi-font *::text").get()
+
+        # notable inhabitants data
+        notable_inhabitants_div = info_block.xpath(
+            ".//div[@data-source='Notable inhabitants']"
+        )
+        notable_inhabitants = notable_inhabitants_div.css(
+            "div.pi-data-value.pi-font *::text"
+        ).getall()
+
+        # notable former inhabitants data
+        notable_former_inhabitants_div = info_block.xpath(
+            ".//div[@data-source='Notable f. Inhabitants']"
+        )
+        if notable_former_inhabitants_div is not None:
+            notable_former_inhabitants = notable_former_inhabitants_div.css(
+                "div.pi-data-value.pi-font *::text"
+            ).getall()
+        else:
+            notable_former_inhabitants = []
+
+        # Instantiate Itemloader
         news_item_loader = ItemLoader(item=HealthnewsscraperItem(), response=info_block)
-        
-        # Populating the link, headline, body and date fields.
-        news_item_loader.add_value('link', response.meta['item'])
-        news_item_loader.add_css('name', 'aside.portable-infobox.pi-background.pi-border-color.pi-theme-wikia.pi-layout-default div.pi-data-value.pi-font::text')
-        news_item_loader.add_css('description', 'p::text')
-        news_item_loader.add_css('date_published', 'span.meta-date::text')
 
-
-        pass
- 
+        # Populating source, name, rel_location, residents fields.
+        news_item_loader.add_value("source", response.meta["item"])
+        news_item_loader.add_css("name", "div.pi-data-value.pi-font::text")
+        news_item_loader.add_value("rel_location", territory)
+        news_item_loader.add_value(
+            "residents", notable_inhabitants + notable_former_inhabitants
+        )
