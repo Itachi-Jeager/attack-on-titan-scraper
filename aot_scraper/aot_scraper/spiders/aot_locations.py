@@ -10,9 +10,7 @@ class AotLocationsSpider(scrapy.Spider):
     allowed_domains = ["attackontitan.fandom.com"]
     start_urls = ["https://attackontitan.fandom.com/wiki/Category:Locations_(Anime)"]
     custom_settings = {
-        "FEEDS": {
-            "./attack-on-titan-scraper/scrapes/location_data.jl": {"format": "jsonlines"}
-        },
+        "FEEDS": {"./aot_scraper/scrapes/location_data.jl": {"format": "jsonlines"}},
     }
 
     def parse(self, response):
@@ -24,7 +22,7 @@ class AotLocationsSpider(scrapy.Spider):
         for entry in response.css("div.category-page__members-wrapper"):
             location_link = entry.css("a.category-page__member-link").attrib["href"]
 
-            request = scrapy.follow(location_link, callback=self.article_reader)
+            request = response.follow(location_link, callback=self.article_reader)
 
             request.meta["item"] = location_link
 
@@ -39,8 +37,7 @@ class AotLocationsSpider(scrapy.Spider):
         """
         # Section of the page containing data
         info_block = response.css(
-            "div#mw-content-text "
-            "aside.portable-infobox.pi-background.pi-border-color.pi-theme-wikia.pi-layout-default"
+            "div#mw-content-text aside.portable-infobox.pi-background.pi-border-color.pi-theme-wikia.pi-layout-default"
         )
 
         # territory data
@@ -67,12 +64,24 @@ class AotLocationsSpider(scrapy.Spider):
             notable_former_inhabitants = []
 
         # Instantiate Itemloader
-        location_item_loader = ItemLoader(item=AotLocationItem(), response=info_block)
+        location_item_loader = ItemLoader(item=AotLocationItem(), selector=info_block)
 
         # Populating source, name, rel_location, residents fields.
-        location_item_loader.add_value("source", response.meta["item"])
+        location_item_loader.add_value("source", "attackontitan.fandom.com" + response.meta["item"])
         location_item_loader.add_css("name", "div.pi-data-value.pi-font::text")
         location_item_loader.add_value("rel_location", territory)
         location_item_loader.add_value(
             "residents", notable_inhabitants + notable_former_inhabitants
         )
+
+        # Return item loader object ready to exported
+        yield location_item_loader.load_item()
+        # TODO: Run full scrape to understand potential flaws in the data.
+        # TODO: format all scripts
+
+        # yield {
+        #     "source": "attackontitan.fandom.com" + response.meta["item"],
+        #     "name": info_block.css("div.pi-data-value.pi-font::text").get(),
+        #     "rel_location": territory,
+        #     "residents": notable_inhabitants + notable_former_inhabitants,
+        # }
