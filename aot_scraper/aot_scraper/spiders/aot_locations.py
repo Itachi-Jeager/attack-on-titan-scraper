@@ -67,7 +67,9 @@ class AotLocationsSpider(scrapy.Spider):
         location_item_loader = ItemLoader(item=AotLocationItem(), selector=info_block)
 
         # Populating source, name, rel_location, residents fields.
-        location_item_loader.add_value("source", "attackontitan.fandom.com" + response.meta["item"])
+        location_item_loader.add_value(
+            "source", "attackontitan.fandom.com" + response.meta["item"]
+        )
         location_item_loader.add_css("name", "div.pi-data-value.pi-font::text")
         location_item_loader.add_value("rel_location", territory)
         location_item_loader.add_value(
@@ -76,8 +78,6 @@ class AotLocationsSpider(scrapy.Spider):
 
         # Return item loader object ready to exported
         yield location_item_loader.load_item()
-        # TODO: Run full scrape to understand potential flaws in the data.
-        # TODO: format all scripts
 
         # yield {
         #     "source": "attackontitan.fandom.com" + response.meta["item"],
