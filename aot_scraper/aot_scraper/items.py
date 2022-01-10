@@ -9,7 +9,6 @@ from itemloaders.processors import Join, TakeFirst, MapCompose, Identity, Compos
 from w3lib.html import remove_tags
 import re
 
-#TODO: Remove brackets in residents fields
 
 def remove_cross(text: str) -> str:
     """
@@ -65,6 +64,10 @@ def remove_empty_entries(payload: list) -> list:
     #     return payload
 
     clean_payload = list(filter(lambda entry: entry != " ", payload))
+    clean_payload = list(filter(lambda entry: entry != ")", clean_payload))
+    clean_payload = list(filter(lambda entry: entry != " )", clean_payload))
+    clean_payload = list(filter(lambda entry: entry != "(", clean_payload))
+    clean_payload = list(filter(lambda entry: entry != " (", clean_payload))
     return clean_payload
 
 
