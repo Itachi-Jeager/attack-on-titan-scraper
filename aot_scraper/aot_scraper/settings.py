@@ -23,7 +23,7 @@ ROBOTSTXT_OBEY = True
 FEED_EXPORT_ENCODING = 'utf-8'
 
 # Fields to export with
-FEED_EXPORT_FIELDS = ["source", "name", "rel_location", "residents", ]
+# FEED_EXPORT_FIELDS = ["source", "name", "rel_location", "residents", ]
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 CONCURRENT_REQUESTS = 8
