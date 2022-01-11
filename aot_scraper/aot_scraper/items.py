@@ -3,7 +3,7 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/items.html
 
-# imports
+# import modules
 import scrapy
 from itemloaders.processors import Join, TakeFirst, MapCompose, Identity, Compose
 from w3lib.html import remove_tags
@@ -15,8 +15,11 @@ def remove_cross(text: str) -> str:
     Helper function which removes crosses and
     question marks from text.
 
-    :param text
-    :return: text
+    Args:
+        text: scraped string.
+
+    Returns:
+        text: clean string
     """
     if "†" in text:
         text = text.replace("†", " ")
@@ -32,9 +35,14 @@ def remove_citations(text: str) -> str:
     """
     Helper function which removes citations from text.
 
-    :param text
-    :return: clean_text
+    Args:
+        text: scraped string
+
+    Returns:
+        clean_text: clean scraped string
     """
+
+    # regex to substitute any square brackets with digits with an empty space
     clean_text = re.sub(r"\[\d\]", " ", text)
     return clean_text
 
@@ -43,8 +51,11 @@ def remove_trailing_spaces(text: str) -> str:
     """
     Helper function for removing trailing whitespaces
 
-    :param text
-    :return: clean_text
+    Args:
+        text: scraped string
+
+    Returns:
+        clean_text: clean scraped string
     """
     clean_text = text.strip()
     return clean_text
@@ -54,8 +65,11 @@ def remove_empty_entries(payload: list) -> list:
     """
     Helper function for removing empty or non-data entries from a list
 
-    :param payload
-    return: clean_payload
+    Args:
+        payload: scraped list
+
+    Returns:
+        clean_payload: clean scraped list
     """
     # try:
     #     payload.remove(" ")
@@ -63,6 +77,7 @@ def remove_empty_entries(payload: list) -> list:
     # except ValueError as ve:
     #     return payload
 
+    # filter out only list elements which aren't empty space or brackets
     clean_payload = list(filter(lambda entry: entry != " ", payload))
     clean_payload = list(filter(lambda entry: entry != ")", clean_payload))
     clean_payload = list(filter(lambda entry: entry != " )", clean_payload))
@@ -72,7 +87,21 @@ def remove_empty_entries(payload: list) -> list:
 
 
 class AotLocationItem(scrapy.Item):
+    """
+    Item Lader for Attack on Titan Locations Scrape
 
+    This class only contains attributes which are fields to be
+    populated. The attributes use input and output processors to
+    clean the data.
+
+    Attributes:
+        source: a URL, which is the source of the scraped data.
+        name: a string, which is the name of the location
+        rel_location: a string, which is the location related to current location scraped
+        residents: a list of notable current and former residents of this location
+    """
+
+    # fields and their processors
     source = scrapy.Field(input_processor=Identity(), output_processor=TakeFirst())
     name = scrapy.Field(
         input_processor=MapCompose(remove_trailing_spaces), output_processor=TakeFirst()
@@ -84,3 +113,14 @@ class AotLocationItem(scrapy.Item):
         input_processor=MapCompose(remove_citations, remove_cross),
         output_processor=Compose(remove_empty_entries),
     )
+
+
+class AotTitanItem(scrapy.Item):
+    name = scrapy.Field(
+        input_processor=MapCompose(remove_trailing_spaces), output_processor=TakeFirst()
+    )
+    height = scrapy.Field(
+        input_processor=MapCompose(remove_trailing_spaces), output_processor=TakeFirst()
+    )
+    powers = scrapy.Field()
+    shifters = scrapy.Field()
