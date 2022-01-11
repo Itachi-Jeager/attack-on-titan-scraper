@@ -53,17 +53,20 @@ class AotTitansSpider(scrapy.Spider):
         # specific HTML elements with content
         height_div = info_block.xpath(".//div[@data-source='Height']")
         powers_div = info_block.xpath(".//div[@data-source='Abilities']")
-        current_shifter = info_block.xpath(".//div[@data-source='Current inheritor(s)']")
+        current_shifter = info_block.xpath(
+            ".//div[@data-source='Current inheritor(s)']"
+        )
         former_shifter = info_block.xpath(".//div[@data-source='Former inheritor(s)']")
-
-        # TODO: Some height data is missing
-        # TODO: Some data in the power column is being lost because they are within tags
 
         # text retrieval from HTML
         height_data = height_div.css("div.pi-data-value.pi-font *::text").get()
         powers_data = powers_div.css("div.pi-data-value.pi-font *::text").getall()
-        current_shifters_data = current_shifter.css("div.pi-data-value.pi-font a::text").getall()
-        former_shifters_data = former_shifter.css("div.pi-data-value.pi-font a::text").getall()
+        current_shifters_data = current_shifter.css(
+            "div.pi-data-value.pi-font a::text"
+        ).getall()
+        former_shifters_data = former_shifter.css(
+            "div.pi-data-value.pi-font a::text"
+        ).getall()
 
         # instantiate item loader
         titan_item_loader = ItemLoader(item=AotTitanItem(), selector=info_block)
@@ -72,11 +75,12 @@ class AotTitansSpider(scrapy.Spider):
         titan_item_loader.add_css("name", "div.pi-data-value.pi-font::text")
         titan_item_loader.add_value("height", height_data)
         titan_item_loader.add_value("powers", powers_data)
-        titan_item_loader.add_value("shifters", current_shifters_data + former_shifters_data)
+        titan_item_loader.add_value(
+            "shifters", current_shifters_data + former_shifters_data
+        )
 
         yield titan_item_loader.load_item()
 
-        
         # yield {
         #     'name': info_block.css("div.pi-data-value.pi-font::text").get(),
         #     'height': height_div.css("div.pi-data-value.pi-font span::text").get(),
@@ -85,4 +89,3 @@ class AotTitansSpider(scrapy.Spider):
         #                 + former_shifter.css("div.pi-data-value.pi-font a::text").getall()
 
         # }
-        

@@ -9,7 +9,7 @@ class AotLocationsSpider(scrapy.Spider):
     A spider for scraping data about titans from the Attack on Titan Fandom wiki
 
     This is a spider using the basic template provided by scrapy. It visits the
-    start_urls and uses the parse function to retrieve each link to individual 
+    start_urls and uses the parse function to retrieve each link to individual
     pages. On the individual pages the article_reader functionscrapes the needed
     data and populates an item loader.
 
@@ -30,7 +30,7 @@ class AotLocationsSpider(scrapy.Spider):
     def parse(self, response):
         """
         Visits start_urls and retrieve page links, which it follows.
-        
+
         Args:
             response: response from start_urls
         """
@@ -52,7 +52,7 @@ class AotLocationsSpider(scrapy.Spider):
 
         Args:
             response: response object from individual pages
-        
+
         Return:
             item_loader object
         """
