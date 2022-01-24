@@ -124,3 +124,23 @@ class AotTitanItem(scrapy.Item):
     )
     powers = scrapy.Field()
     shifters = scrapy.Field()
+
+
+class AotOrgItem(scrapy.Item):
+    source = scrapy.Field()
+    name = scrapy.Field()
+    members = scrapy.Field()
+    description = scrapy.Field()
+    occupation = scrapy.Field()
+
+
+
+
+# from dataclasses import dataclass, field
+# from typing import Optional
+
+# @dataclass
+# class InventoryItem:
+#     name: Optional[str] = field(default=None)
+#     price: Optional[float] = field(default=None)
+#     stock: Optional[int] = field(default=None)
