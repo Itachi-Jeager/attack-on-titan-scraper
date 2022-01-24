@@ -3,3 +3,4 @@
 /aot_scraper/aot_scraper/spiders/__pycache__
 **/aot_scraper/aot_scraper/scrapes
 **/aot_scraper/.scrapy
+**/aot_scraper/__pycache__
