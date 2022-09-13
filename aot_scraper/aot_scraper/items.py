@@ -125,13 +125,12 @@ class AotTitanItem(scrapy.Item):
     powers = scrapy.Field()
     shifters = scrapy.Field()
 
-
+# put the correct filters for the Org Item class
 class AotOrgItem(scrapy.Item):
     source = scrapy.Field()
     name = scrapy.Field()
-    members = scrapy.Field()
-    description = scrapy.Field()
-    occupation = scrapy.Field()
+    leader = scrapy.Field()
+    residents = scrapy.Field()
 
 
 

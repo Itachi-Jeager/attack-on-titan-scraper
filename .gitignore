@@ -4,3 +4,4 @@
 **/aot_scraper/aot_scraper/scrapes
 **/aot_scraper/.scrapy
 **/aot_scraper/__pycache__
+**/.scrapy
