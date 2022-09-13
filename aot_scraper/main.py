@@ -12,6 +12,7 @@ from multiprocessing import Pool
 # TODO: integrate as FASTAPI service
 # TODO: add Changelog
 # TODO: add tests for Scrapers and other functionality
+# TODO: Scrape Characters
 
 
 
