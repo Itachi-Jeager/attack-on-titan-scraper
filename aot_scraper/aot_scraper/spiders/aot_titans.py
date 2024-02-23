@@ -72,6 +72,7 @@ class AotTitansSpider(scrapy.Spider):
         titan_item_loader = ItemLoader(item=AotTitanItem(), selector=info_block)
 
         # use item loader to populate fields
+        titan_item_loader.add_value("source", response.url)
         titan_item_loader.add_css("name", "div.pi-data-value.pi-font::text")
         titan_item_loader.add_value("height", height_data)
         titan_item_loader.add_value("powers", powers_data)
