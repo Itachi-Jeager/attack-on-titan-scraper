@@ -5,3 +5,4 @@
 **/aot_scraper/.scrapy
 **/aot_scraper/__pycache__
 **/.scrapy
+scrape_env
