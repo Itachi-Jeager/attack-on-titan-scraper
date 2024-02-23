@@ -128,6 +128,21 @@ class AotLocationItem(scrapy.Item):
 
 
 class AotTitanItem(scrapy.Item):
+    """
+    Item Loader for Attack on Titan Titan Scrape
+
+    This class only contains attributes which are fields to be populated.
+    The attributes use input and output processors to clean the data.
+
+    Attributes:
+        source: a URL, which is the source of the scraped data
+        name: a string, which is the name of the Titan
+        height: how tall the Titan is
+        powers: the known powers the Titan has
+        shifters: the people who have had the Titan powers 
+    """
+
+    source = scrapy.Field(input_processor=Identity(), output_processor=TakeFirst())
     name = scrapy.Field(
         input_processor=MapCompose(remove_trailing_spaces), output_processor=TakeFirst()
     )
@@ -137,7 +152,7 @@ class AotTitanItem(scrapy.Item):
     powers = scrapy.Field()
     shifters = scrapy.Field()
 
-# put the correct filters for the Org Item class
+
 class AotOrgItem(scrapy.Item):
     """An Item Loader for the Attack On Titan Organizations Scrape
 
