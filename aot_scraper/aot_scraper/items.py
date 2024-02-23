@@ -8,6 +8,7 @@ import scrapy
 from itemloaders.processors import Join, TakeFirst, MapCompose, Identity, Compose
 from w3lib.html import remove_tags
 import re
+import unicodedata
 
 
 def remove_cross(text: str) -> str:
@@ -29,6 +30,17 @@ def remove_cross(text: str) -> str:
         return text
     else:
         return text
+
+ 
+def is_english(text):
+    return text.isalpha() and unicodedata.name(text).startswith(('LATIN', 'COMMON'))
+ 
+def remove_non_english(data):
+    # output = []
+    filtered = filter(is_english, data)
+    english_str = ''.join(filtered)
+    # output.append(english_str)
+    return english_str
 
 
 def remove_citations(text: str) -> str:
@@ -88,7 +100,7 @@ def remove_empty_entries(payload: list) -> list:
 
 class AotLocationItem(scrapy.Item):
     """
-    Item Lader for Attack on Titan Locations Scrape
+    Item Loader for Attack on Titan Locations Scrape
 
     This class only contains attributes which are fields to be
     populated. The attributes use input and output processors to
@@ -127,10 +139,30 @@ class AotTitanItem(scrapy.Item):
 
 # put the correct filters for the Org Item class
 class AotOrgItem(scrapy.Item):
+    """An Item Loader for the Attack On Titan Organizations Scrape
+
+    This class only contains attributes which are fields to be
+    populated. The attributes use input and output processors to
+    clean the data.
+
+    Attributes:
+        source: the source URL for the data
+        name: the name of the organization
+        role: the function of the organization
+        leader: the leader of the organization
+        former_members: the former members of the organization
+        members: the members of the organization
+        affiliation: the affiliations the organization has
+    """
     source = scrapy.Field()
-    name = scrapy.Field()
+    name = scrapy.Field(
+        input_processor=Identity(), output_processor=Compose(TakeFirst(), remove_trailing_spaces)
+    )
+    role = scrapy.Field()
     leader = scrapy.Field()
-    residents = scrapy.Field()
+    members = scrapy.Field(input_processor=MapCompose(remove_cross), output_processor=Compose(remove_empty_entries))
+    former_members = scrapy.Field(input_processor=MapCompose(remove_cross), output_processor=Compose(remove_empty_entries))
+    affiliation = scrapy.Field(input_processor=Identity(), output_processor=remove_empty_entries)
 
 
 
