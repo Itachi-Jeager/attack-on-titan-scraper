@@ -19,20 +19,20 @@ class AotOrganizationsSpider(scrapy.Spider):
             response: response object
         """
         # loop through the HTML element containing links to other pages
-        for entry in response.css("div.category-page__members-wrapper"):
-            # retrieve links
-            organization_link = entry.css("a.category-page__member-link").attrib["href"]
+        page = response.css("div.category-page__members-wrapper")
+
+        # retrieve links
+        found_links = page.css("a.category-page__member-link::attr(href)").getall()
+       
+        for entry in found_links:
+
             # follow the retrieve links and call article reader to process them
-            request = response.follow(organization_link, callback=self.article_reader)
+            request = response.follow(entry, callback=self.article_reader)
             # store the current link as a request meta item
-            request.meta["item"] = organization_link
+            request.meta["item"] = entry
 
             yield request
 
-
-# TODO: Check the webpage to determine the location of data
-# TODO: Get Occupation data
-# TODO: Add missing fields to yield data
 
     @staticmethod
     def article_reader(response):
@@ -85,6 +85,15 @@ class AotOrganizationsSpider(scrapy.Spider):
         notable_former_members_div = info_block.xpath(
             ".//div[@data-source='Notable f. Members']"
         )
+        # occupation data
+        occupation_div = info_block.xpath(
+            ".//div[@data-source='Occupation']"
+        )
+        # affiliation data
+        affiliation_div = info_block.xpath(
+            ".//div[@data-source='Affiliation']"
+        )
+        
         # check if former inhabitants data exists
         if notable_former_members_div is not None:
             notable_former_members = notable_former_members_div.css(
@@ -93,25 +102,44 @@ class AotOrganizationsSpider(scrapy.Spider):
         else:
             notable_former_members = []
 
+        # check if occupation data exists
+        if occupation_div is not None:
+            occupation = occupation_div.css(
+                "div.pi-data-value.pi-font *::text"
+            ).getall()
+        else:
+            occupation = []
+
+        # check if affiliation data exists
+        if affiliation_div is not None:
+            affiliation =affiliation_div.css(
+                "div.pi-data-value.pi-font *::text"
+            ).getall()
+        else:
+            affiliation = []
+
         # Instantiate Itemloader
         location_item_loader = ItemLoader(item=AotOrgItem(), selector=info_block)
 
-        # Populating source, name, rel_location, residents fields.
+        # Populating source, name, leader, members, former_members, role, affiliationß fields.
         location_item_loader.add_value(
             "source", "attackontitan.fandom.com" + response.meta["item"]
         )
-        location_item_loader.add_css("name", "div.pi-data-value.pi-font::text")
+        location_item_loader.add_css("name", "div.pi-data-value.pi-font ::text")
         location_item_loader.add_value("leader", leader)
         location_item_loader.add_value(
-            "residents", members + notable_members + notable_former_members
+            "members", members + notable_members
         )
+        location_item_loader.add_value("former_members", notable_former_members)
+        location_item_loader.add_value("role", occupation)
+        location_item_loader.add_value("affiliation", affiliation)
 
         # Return item loader object ready to exported
         yield location_item_loader.load_item()
 
         # yield {
         #     "source": "attackontitan.fandom.com" + response.meta["item"],
-        #     "name": info_block.css("div.pi-data-value.pi-font::text").get(),
-        #     "rel_location": territory,
-        #     "residents": notable_inhabitants + notable_former_inhabitants,
+        #     # "name": info_block.css("div.pi-data-value.pi-font::text").get(),
+        #     # "rel_location": territory,
+        #     # "residents": notable_inhabitants + notable_former_inhabitants,
         # }
