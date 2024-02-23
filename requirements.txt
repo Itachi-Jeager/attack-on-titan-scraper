@@ -1,4 +1,4 @@
-Scrapy==2.6.1
+Scrapy==2.11.1
 scrapy-deltafetch==2.0.1
 scrapy-magicfields==1.1.0
 black==22.8.0
