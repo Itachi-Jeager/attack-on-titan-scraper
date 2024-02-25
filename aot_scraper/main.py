@@ -4,15 +4,6 @@ from scrapy.utils.project import get_project_settings
 from scrapy import signals
 
 from multiprocessing import Pool
-# TODO: Format this file with black
-# TODO: Add support for deltafetch in multiprocessing
-# TODO: Data cleaning for Attack on Titan Organizations scrape
-# TODO: Send scraped data to database
-# TODO: prevent JL file creation
-# TODO: integrate as FASTAPI service
-# TODO: add Changelog
-# TODO: add tests for Scrapers and other functionality
-# TODO: Scrape Characters
 
 
 
@@ -69,10 +60,10 @@ if __name__ == '__main__':
     # print(f"This is the final result {final_result}")
 
     # executing with multiprocessing pool
-    pool = Pool()
-    args = [(["aot_titans"])]
-    print(pool.starmap(scrape, args))
+    # pool = Pool()
+    # args = [(["aot_titans"])]
+    # print(pool.starmap(scrape, args))
 
     # executing normally
-    # runner(['aot_titans'], state=1)
+    runner(['aot_titans'], state=1)
     
