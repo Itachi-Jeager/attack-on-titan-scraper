@@ -33,7 +33,7 @@ def remove_cross(text: str) -> str:
 
  
 def is_english(text):
-    return text.isalpha() and unicodedata.name(text).startswith(('LATIN', 'COMMON'))
+    return (text.isalpha() and unicodedata.name(text).startswith(('LATIN', 'COMMON'))) or text ==' '
  
 def remove_non_english(data):
     # output = []
@@ -41,6 +41,17 @@ def remove_non_english(data):
     english_str = ''.join(filtered)
     # output.append(english_str)
     return english_str
+
+def remove_carries(text: str) -> str:
+    """Removes new line, tabs and returns from text
+
+    Args:
+        text (str): input stream of text
+
+    Returns:
+        str: valid text
+    """
+    return re.sub('\s+',' ',text)
 
 
 def remove_citations(text: str) -> str:
@@ -97,6 +108,18 @@ def remove_empty_entries(payload: list) -> list:
     clean_payload = list(filter(lambda entry: entry != " (", clean_payload))
     return clean_payload
 
+def remove_keywords(text: str) -> str:
+    """Removes certain keywords from payload
+
+    Args:
+        text (str): keyword
+
+    Returns:
+        str: valid string
+    """
+
+    return None if text == 'Relatives' or text == 'Titan kills' else text
+
 
 class AotLocationItem(scrapy.Item):
     """
@@ -149,7 +172,7 @@ class AotTitanItem(scrapy.Item):
     height = scrapy.Field(
         input_processor=MapCompose(remove_trailing_spaces), output_processor=TakeFirst()
     )
-    powers = scrapy.Field()
+    powers = scrapy.Field(input_processor=MapCompose(remove_citations))
     shifters = scrapy.Field()
 
 
@@ -178,6 +201,38 @@ class AotOrgItem(scrapy.Item):
     members = scrapy.Field(input_processor=MapCompose(remove_cross), output_processor=Compose(remove_empty_entries))
     former_members = scrapy.Field(input_processor=MapCompose(remove_cross), output_processor=Compose(remove_empty_entries))
     affiliation = scrapy.Field(input_processor=Identity(), output_processor=remove_empty_entries)
+
+
+class AotCharItem(scrapy.Item):
+    """An Item Loader for the Attack On Titan Organizations Scrape
+
+    This class only contains attributes which are fields to be
+    populated. The attributes use input and output processors to
+    clean the data.
+
+    Attributes:
+        source: the source URL for the data
+        name: the name of the organization
+        role: the function of the organization
+        leader: the leader of the organization
+        former_members: the former members of the organization
+        members: the members of the organization
+        affiliation: the affiliations the organization has
+    """
+
+    source = scrapy.Field()
+    name = scrapy.Field(input_processor=MapCompose(remove_trailing_spaces), output_processor=TakeFirst())
+    species = scrapy.Field(input_processor=Identity(), output_processor=TakeFirst())
+    gender = scrapy.Field(input_processor=Identity(), output_processor=TakeFirst())
+    residence = scrapy.Field(input_processor=MapCompose(remove_trailing_spaces), output_processor=TakeFirst())
+    status = scrapy.Field(input_processor=Identity(), output_processor=TakeFirst())
+    function = scrapy.Field(input_processor=Identity(), output_processor=TakeFirst())
+    rank = scrapy.Field(input_processor=remove_empty_entries, output_processor=Compose(TakeFirst(), remove_non_english))
+    affiliation = scrapy.Field(input_processor=Identity(), output_processor=remove_empty_entries)
+    titan_kills = scrapy.Field(input_processor=MapCompose(remove_citations), output_processor=MapCompose(remove_carries, remove_keywords))
+    relatives = scrapy.Field(input_processor=MapCompose(remove_non_english, remove_keywords, remove_citations), output_processor=Compose(remove_empty_entries))
+    birth_place = scrapy.Field(input_processor=MapCompose(remove_trailing_spaces), output_processor=TakeFirst())
+
 
 
 
